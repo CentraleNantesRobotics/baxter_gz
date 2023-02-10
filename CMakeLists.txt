@@ -16,8 +16,8 @@ set(IGN_MSGS_VER ${ignition-msgs8_VERSION_MAJOR})
 
 set(CMAKE_CXX_STANDARD 17)
 
-ament_auto_add_executable(cmd_bridge src/bridge.cpp src/arm_node.cpp)
-target_link_libraries(cmd_bridge 
+ament_auto_add_executable(baxter_gz_bridge src/bridge.cpp src/arm_node.cpp)
+target_link_libraries(baxter_gz_bridge
                       ignition-msgs${IGN_MSGS_VER}::core
                       ignition-transport${IGN_TRANSPORT_VER}::core)
 

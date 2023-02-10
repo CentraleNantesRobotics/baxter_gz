@@ -25,7 +25,7 @@ def generate_launch_description():
         
         sl.create_gz_bridge(bridges, 'sensor_bridge')
                 
-        sl.node('baxter_gazebosim', 'cmd_bridge')
+        sl.node('baxter_gazebosim', 'baxter_gz_bridge')
         
         with sl.group(if_arg='sliders'):
             for side in ('left', 'right'):

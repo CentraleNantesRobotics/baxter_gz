@@ -7,11 +7,9 @@ int main (int argc, char** argv)
 {    
   rclcpp::init(argc, argv);
 
-//  rclcpp::executors::SingleThreadedExecutor exec;
-//  exec.add_node(std::make_shared<ArmBridge>("left"));
-  //exec.add_node(std::make_shared<ArmBridge>("right"));
+  [[maybe_unused]] auto left{ArmBridge("left")};
+  [[maybe_unused]] auto right{ArmBridge("right")};
 
-  rclcpp::spin(std::make_shared<ArmBridge>("left"));
+  rclcpp::spin(ArmBridge::node());
 
-  //exec.spin();
 }

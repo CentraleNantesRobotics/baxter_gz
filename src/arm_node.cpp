@@ -3,8 +3,17 @@
 namespace baxter_gazebosim
 {
 
-ArmBridge::ArmBridge(const std::string &side) : Node(side + "_arm_bridge")
+ignition::transport::Node ArmBridge::gz_node;
+std::shared_ptr<rclcpp::Node> ArmBridge::ros2_node;
+
+ArmBridge::ArmBridge(const std::string &side)
 {
+  if(!ros2_node)
+  {
+    ros2_node = std::make_shared<rclcpp::Node>("baxter_gz_bridge");
+  }
+
+
   // init publishers to Gazebo
   for(const auto suffix: {"s0", "s1", "e0", "e1", "w0", "w1", "w2"})
   {
@@ -12,10 +21,10 @@ ArmBridge::ArmBridge(const std::string &side) : Node(side + "_arm_bridge")
     const auto gz_topic_pos{"/model/baxter/joint/" + joint + "/0/cmd_pos"};
     const auto gz_topic_vel{joint + "_cmd_vel"};
 
-    pos_pub[suffix] = node.Advertise<ignition::msgs::Double>(gz_topic_pos);
-    vel_pub[suffix] = node.Advertise<ignition::msgs::Double>(gz_topic_vel);
+    pos_pub[suffix] = gz_node.Advertise<ignition::msgs::Double>(gz_topic_pos);
+    vel_pub[suffix] = gz_node.Advertise<ignition::msgs::Double>(gz_topic_vel);
 
-    cmd_sub = create_subscription<JointCommand>("/robot/limb/" + side + "/joint_command", 5,
+    cmd_sub = ros2_node->create_subscription<JointCommand>("/robot/limb/" + side + "/joint_command", 5,
                                                  [&](const JointCommand &msg){republish(msg);});;
 
   }
@@ -23,10 +32,10 @@ ArmBridge::ArmBridge(const std::string &side) : Node(side + "_arm_bridge")
   // init range
   range.radiation_type = range.INFRARED;
   range.header.frame_id = side + "_hand_range";
-  range_pub = create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
+  range_pub = ros2_node->create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
 
-  //std::function<void(const ignition::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
-  //node.Subscribe("/" + side + "_range", sub_cb);
+  std::function<void(const ignition::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
+  gz_node.Subscribe("/" + side + "_range", sub_cb);
 }
 
 void ArmBridge::republish(const JointCommand &msg)
@@ -49,23 +58,17 @@ void ArmBridge::republish(const JointCommand &msg)
 
 void ArmBridge::republish(const ignition::msgs::LaserScan &scan)
 {
-  auto valid{0};
-  range.range = 0;
+  range.max_range = scan.range_max();
+  range.min_range = scan.range_min();
+  range.field_of_view = scan.angle_max();
+  range.range = range.max_range+1;
   for(auto i = 0; i < scan.ranges_size(); ++i)
   {
     if(scan.ranges(i) <= scan.range_max() && scan.ranges(i) >= scan.range_min())
-    {
-      valid++;
-      range.range += scan.ranges(i);
-    }
+      range.range = std::min<float>(range.range, scan.ranges(i));
   }
 
-  if(valid)
-    range.range /= valid;
-  else
-    range.range = scan.range_max() + 1.;
-
-  range.header.stamp = get_clock()->now();
+  range.header.stamp = ros2_node->get_clock()->now();
   range_pub->publish(range);
 }
 

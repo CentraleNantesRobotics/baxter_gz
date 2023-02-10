@@ -9,16 +9,19 @@
 namespace baxter_gazebosim
 {
 
-class ArmBridge : public rclcpp::Node
+class ArmBridge
 {
   using JointCommand = baxter_core_msgs::msg::JointCommand;
   using Range = sensor_msgs::msg::Range;
 
-public:
+public: 
+
   explicit ArmBridge(const std::string &side);
+  inline static auto node() {return ros2_node;}
 
 private:
-  ignition::transport::Node node;
+  static std::shared_ptr<rclcpp::Node> ros2_node;
+  static ignition::transport::Node gz_node;
 
   // joint command
   std::map<std::string, ignition::transport::Node::Publisher> pos_pub, vel_pub;
