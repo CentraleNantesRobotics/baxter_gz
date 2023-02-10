@@ -6,31 +6,32 @@
         min: 1
         max: 2
         to: mode
+        default: 1
     s0:
-        min: -2
-        max: 2
+        min: -1.70167993878
+        max: 1.70167993878
         to: command[0]
     s1: 
-        min: -2
-        max: 2
+        min: -2.147
+        max: 1.047
         to: command[1]
     e0:
-        min: -2
-        max: 2
+        min: -3.05417993878
+        max: 3.05417993878
         to: command[2]
     e1: 
-        min: -2
-        max: 2
+        min: -0.05
+        max: 2.618
         to: command[3]
     w0:
-        min: -2
-        max: 2
+        min: -3.059
+        max: 3.059
         to: command[4]
     w1: 
-        min: -2
-        max: 2
+        min: -1.57079632679
+        max: 2.094
         to: command[5]
     w2:
-        min: -2
-        max: 2
+        min: -3.059
+        max: 3.059
         to: command[6]
