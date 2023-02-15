@@ -35,7 +35,7 @@ ArmBridge::ArmBridge(const std::string &side)
   range_pub = ros2_node->create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
 
   std::function<void(const ignition::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
-  gz_node.Subscribe("/" + side + "_range", sub_cb);
+  gz_node.Subscribe("/" + side + "_arm/range", sub_cb);
 }
 
 void ArmBridge::republish(const JointCommand &msg)
