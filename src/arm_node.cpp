@@ -3,16 +3,12 @@
 namespace baxter_gazebosim
 {
 
-ignition::transport::Node ArmBridge::gz_node;
-std::shared_ptr<rclcpp::Node> ArmBridge::ros2_node;
+std::unordered_map<std::string, double> Arm::state;
+rclcpp::Node* Arm::node;
 
-ArmBridge::ArmBridge(const std::string &side)
+Arm::Arm(const std::string &side, rclcpp::Node *ros, ignition::transport::Node &gz)
 {
-  if(!ros2_node)
-  {
-    ros2_node = std::make_shared<rclcpp::Node>("baxter_gz_bridge");
-  }
-
+  node = ros;
 
   // init publishers to Gazebo
   for(const auto suffix: {"s0", "s1", "e0", "e1", "w0", "w1", "w2"})
@@ -21,42 +17,70 @@ ArmBridge::ArmBridge(const std::string &side)
     const auto gz_topic_pos{"/model/baxter/joint/" + joint + "/0/cmd_pos"};
     const auto gz_topic_vel{joint + "_cmd_vel"};
 
-    pos_pub[suffix] = gz_node.Advertise<ignition::msgs::Double>(gz_topic_pos);
-    vel_pub[suffix] = gz_node.Advertise<ignition::msgs::Double>(gz_topic_vel);
+    //pos_pub[joint] = gz.Advertise<ignition::msgs::Double>(gz_topic_pos);
+    vel_pub[joint] = gz.Advertise<ignition::msgs::Double>(gz_topic_vel);
 
-    cmd_sub = ros2_node->create_subscription<JointCommand>("/robot/limb/" + side + "/joint_command", 5,
-                                                 [&](const JointCommand &msg){republish(msg);});;
-
+    cmd_sub = ros->create_subscription<JointCommand>("/robot/limb/" + side + "/joint_command", 5,
+                                                     [&](const JointCommand &msg)
+    {last_cmd = msg;}
+                                                  //   {republish(msg);}
+    );
   }
 
   // init range
   range.radiation_type = range.INFRARED;
   range.header.frame_id = side + "_hand_range";
-  range_pub = ros2_node->create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
+  range_pub = ros->create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
 
   std::function<void(const ignition::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
-  gz_node.Subscribe("/" + side + "_arm/range", sub_cb);
+  gz.Subscribe("/" + side + "_arm/range", sub_cb);
 }
 
-void ArmBridge::republish(const JointCommand &msg)
+void Arm::republish(const JointCommand & msg)
 {
   static ignition::msgs::Double gz_cmd;
-
   auto &publishers = msg.mode == msg.POSITION_MODE ? pos_pub : vel_pub;
 
-  size_t idx{};
-  for(const auto &name: msg.names)
+  auto joint_cmd{msg.command.begin()};
+  for(const auto &joint: msg.names)
   {
-    if(const auto pub{publishers.find(name)}; pub != publishers.end())
+    if(const auto pub{publishers.find(joint)}; pub != publishers.end())
     {
-      gz_cmd.set_data(msg.command[idx]);
+      gz_cmd.set_data(*joint_cmd);
       pub->second.Publish(gz_cmd);
     }
-    idx++;
+    joint_cmd++;
   }
 }
 
-void ArmBridge::republish(const ignition::msgs::LaserScan &scan)
+void Arm::move()
+{
+  if(last_cmd.names.empty())
+    return;
+
+  const auto use_position{last_cmd.mode == last_cmd.POSITION_MODE};
+  static ignition::msgs::Double gz_cmd;
+
+  auto joint_cmd{last_cmd.command.begin()};
+  for(const auto &joint: last_cmd.names)
+  {
+    if(const auto pub{vel_pub.find(joint)}; pub != vel_pub.end())
+    {
+      if(use_position)
+      {
+        gz_cmd.set_data(10.*(*joint_cmd - state[joint]));
+      }
+      else
+      {
+        gz_cmd.set_data(*joint_cmd);
+      }
+      pub->second.Publish(gz_cmd);
+    }
+    joint_cmd++;
+  }
+}
+
+void Arm::republish(const ignition::msgs::LaserScan &scan)
 {
   range.max_range = scan.range_max();
   range.min_range = scan.range_min();
@@ -68,7 +92,7 @@ void ArmBridge::republish(const ignition::msgs::LaserScan &scan)
       range.range = std::min<float>(range.range, scan.ranges(i));
   }
 
-  range.header.stamp = ros2_node->get_clock()->now();
+  range.header.stamp = node->get_clock()->now();
   range_pub->publish(range);
 }
 
