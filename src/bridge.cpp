@@ -1,15 +1,19 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/node.hpp>
-#include <ignition/transport/Node.hh>
-#include <ignition/msgs.hh>
 #include <baxter_gazebosim/arm_node.h>
+
+#ifdef IGNITION_GAZEBO
+#include <ignition/msgs/model.pb.h>
+#else
+#include <gz/msgs/model.pb.h>
+#endif
 
 using baxter_gazebosim::Arm;
 using namespace std::chrono_literals;
 
 class Bridge : public rclcpp::Node
 {
-  using Model = ignition::msgs::Model;
+  using Model = GZ_NS::msgs::Model;
 
 public:
 
@@ -30,7 +34,7 @@ public:
   }
 
 private:
-  ignition::transport::Node gz_node;
+  GZ_NS::transport::Node gz_node;
 
   rclcpp::TimerBase::SharedPtr timer;
 
