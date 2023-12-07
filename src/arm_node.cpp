@@ -8,7 +8,7 @@ rclcpp::Node* Arm::node;
 
 Arm::Arm(const std::string &side, rclcpp::Node *ros, GZ_NS::transport::Node &gz)
 {
-  node = ros;
+  node = ros; 
 
   // init publishers to Gazebo
   for(const auto suffix: {"s0", "s1", "e0", "e1", "w0", "w1", "w2"})
