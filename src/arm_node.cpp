@@ -1,6 +1,6 @@
-#include <baxter_gazebosim/arm_node.h>
+#include <baxter_gz/arm_node.h>
 
-namespace baxter_gazebosim
+namespace baxter_gz
 {
 
 std::unordered_map<std::string, double> Arm::state;

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>baxter_gazebosim</name>
+  <name>baxter_gz</name>
   <version>1.0.0</version>
   <description>Baxter bridge for GazeboSim</description>
   <maintainer email="olivier_kermorgant@ec-nantes.fr">Olivier Kermorgant</maintainer>

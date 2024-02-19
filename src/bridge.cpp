@@ -1,14 +1,14 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/node.hpp>
-#include <baxter_gazebosim/arm_node.h>
+#include <baxter_gz/arm_node.h>
 
-#ifdef IGNITION_GAZEBO
+#ifdef FOR_IGNITION_FORTRESS
 #include <ignition/msgs/model.pb.h>
 #else
 #include <gz/msgs/model.pb.h>
 #endif
 
-using baxter_gazebosim::Arm;
+using baxter_gz::Arm;
 using namespace std::chrono_literals;
 
 class Bridge : public rclcpp::Node

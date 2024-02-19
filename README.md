@@ -6,8 +6,8 @@ The topics are the same as the real robot and use `baxter_core_msgs/JointCommand
 
 The launch files require `simple_launch`:
 
- - `ros2 launch baxter_gazebosim sim_launch.py` to run Gazebo
- - `ros2 launch baxter_gazebosim upload_launch.py` to spawn Baxter
+ - `ros2 launch baxter_gz sim_launch.py` to run Gazebo
+ - `ros2 launch baxter_gz upload_launch.py` to spawn Baxter
 
     use `sliders:=True` to have joint command sliders and test the simulation (requires `slider_publisher`)
 

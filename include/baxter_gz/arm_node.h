@@ -1,5 +1,5 @@
-#ifndef BAXTER_GZ_SIM_ARM_H
-#define BAXTER_GZ_SIM_ARM_H
+#ifndef BAXTER_GZ_ARM_H
+#define BAXTER_GZ_ARM_H
 
 #include <rclcpp/node.hpp>
 #include <baxter_core_msgs/msg/joint_command.hpp>
@@ -17,7 +17,7 @@
 #define GZ_NS gz
 #endif
 
-namespace baxter_gazebosim
+namespace baxter_gz
 {
 
 class Arm
