@@ -5,7 +5,7 @@
 #include <baxter_core_msgs/msg/joint_command.hpp>
 #include <sensor_msgs/msg/range.hpp>
 
-#ifdef IGNITION_GAZEBO
+#ifdef FOR_IGNITION_FORTRESS
 #include <ignition/transport/Node.hh>
 #include <ignition/msgs/laserscan.pb.h>
 #include <ignition/msgs/double.pb.h>
