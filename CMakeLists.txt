@@ -10,7 +10,7 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 # Harmonic
-if("$ENV{GZ_VERSION}" STREQUAL "harmonic")
+if("$ENV{GZ_VERSION}" STREQUAL "harmonic" OR "$ENV{ROS_DISTRO}" STRGREATER_EQUAL "jazzy")
   set(GZ_TARGET_PREFIX gz)
 
   set(GZ_TRANSPORT transport13)
@@ -40,8 +40,6 @@ endif()
 
 find_package(${GZ_TARGET_PREFIX}-${GZ_TRANSPORT})
 find_package(${GZ_TARGET_PREFIX}-${GZ_MSGS})
-
-add_definitions(-DGZ_NS=${GZ_TARGET_PREFIX})
 
 set(CMAKE_CXX_STANDARD 17)
 

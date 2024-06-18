@@ -6,7 +6,7 @@ namespace baxter_gz
 std::unordered_map<std::string, double> Arm::state;
 rclcpp::Node* Arm::node;
 
-Arm::Arm(const std::string &side, rclcpp::Node *ros, GZ_NS::transport::Node &gz)
+Arm::Arm(const std::string &side, rclcpp::Node *ros, gz::transport::Node &gz)
 {
   node = ros; 
 
@@ -17,7 +17,7 @@ Arm::Arm(const std::string &side, rclcpp::Node *ros, GZ_NS::transport::Node &gz)
     const auto gz_topic_pos{"/model/baxter/joint/" + joint + "/0/cmd_pos"};
     const auto gz_topic_vel{joint + "_cmd_vel"};
 
-    vel_pub[joint] = gz.Advertise<GZ_NS::msgs::Double>(gz_topic_vel);
+    vel_pub[joint] = gz.Advertise<gz::msgs::Double>(gz_topic_vel);
 
     cmd_sub = ros->create_subscription<JointCommand>("/robot/limb/" + side + "/joint_command", 5,
                                                      [&](const JointCommand &msg)
@@ -31,13 +31,13 @@ Arm::Arm(const std::string &side, rclcpp::Node *ros, GZ_NS::transport::Node &gz)
   range.header.frame_id = side + "_hand_range";
   range_pub = ros->create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
 
-  std::function<void(const GZ_NS::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
+  std::function<void(const gz::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
   gz.Subscribe("/" + side + "_arm/range", sub_cb);
 }
 
 void Arm::republish(const JointCommand & msg)
 {
-  static GZ_NS::msgs::Double gz_cmd;
+  static gz::msgs::Double gz_cmd;
   auto &publishers = msg.mode == msg.POSITION_MODE ? pos_pub : vel_pub;
 
   auto joint_cmd{msg.command.begin()};
@@ -58,7 +58,7 @@ void Arm::move()
     return;
 
   const auto use_position{last_cmd.mode == last_cmd.POSITION_MODE};
-  static GZ_NS::msgs::Double gz_cmd;
+  static gz::msgs::Double gz_cmd;
 
   auto joint_cmd{last_cmd.command.begin()};
   for(const auto &joint: last_cmd.names)
@@ -79,7 +79,7 @@ void Arm::move()
   }
 }
 
-void Arm::republish(const GZ_NS::msgs::LaserScan &scan)
+void Arm::republish(const gz::msgs::LaserScan &scan)
 {
   range.max_range = scan.range_max();
   range.min_range = scan.range_min();

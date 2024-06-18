@@ -13,7 +13,7 @@ using namespace std::chrono_literals;
 
 class Bridge : public rclcpp::Node
 {
-  using Model = GZ_NS::msgs::Model;
+  using Model = gz::msgs::Model;
 
 public:
 
@@ -34,7 +34,7 @@ public:
   }
 
 private:
-  GZ_NS::transport::Node gz_node;
+  gz::transport::Node gz_node;
 
   rclcpp::TimerBase::SharedPtr timer;
 
