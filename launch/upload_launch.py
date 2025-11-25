@@ -16,9 +16,11 @@ def generate_launch_description():
         sl.spawn_gz_model('baxter', spawn_args = sl.gazebo_axes_args())
                 
         bridges = [GazeboBridge.clock()]
-        
-        gz_js_topic = sl.name_join(GazeboBridge.model_prefix('baxter'),'/joint_state')
-        bridges.append(GazeboBridge(gz_js_topic, '/robot/joint_states', 'sensor_msgs/JointState', GazeboBridge.gz2ros))
+
+        bridges.append(GazeboBridge.joint_states_bridge('baxter'))
+
+        #gz_js_topic = sl.name_join(GazeboBridge.model_prefix('baxter'),'/joint_state')
+        #bridges.append(GazeboBridge(gz_js_topic, '/robot/joint_states', 'sensor_msgs/JointState', GazeboBridge.gz2ros))
         
         for side in ('left','right'):
             bridges.append(GazeboBridge(f'{side}_arm/image', f'/cameras/{side}_hand_camera/image', 'sensor_msgs/Image', GazeboBridge.gz2ros))
