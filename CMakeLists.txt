@@ -24,19 +24,17 @@ else()
 endif()
 
 message(STATUS "Compiling against Gazebo ${GZ_VERSION}")
+set(GZ_TARGET_PREFIX gz)
 
-if("${GZ_VERSION}" STREQUAL "jetty")
-  set(GZ_TARGET_PREFIX gz)
-  set(GZ_MSGS msgs12)
-  set(GZ_TRANSPORT transport15)
+if("${GZ_VERSION}" STRGREATER_EQUAL "jetty")
+  set(GZ_MSGS msgs)
+  set(GZ_TRANSPORT transport)
 
 elseif("${GZ_VERSION}" STREQUAL "harmonic")
-  set(GZ_TARGET_PREFIX gz)
   set(GZ_TRANSPORT transport13)
   set(GZ_MSGS msgs10)
 
 elseif("${GZ_VERSION}" STREQUAL "garden")
-  set(GZ_TARGET_PREFIX gz)
   set(GZ_TRANSPORT transport12)
   set(GZ_MSGS msgs9)
 
