@@ -9,33 +9,42 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-# Harmonic
-if("$ENV{GZ_VERSION}" STREQUAL "harmonic" OR "$ENV{ROS_DISTRO}" STRGREATER_EQUAL "jazzy")
-  set(GZ_TARGET_PREFIX gz)
+# Gazebo version, use env variable or ROS 2 official pairing for LTS
+# https://gazebosim.org/docs/latest/ros_installation/
+if(DEFINED ENV{GZ_VERSION})
+  set(GZ_VERSION "$ENV{GZ_VERSION}")
+elseif(DEFINED ENV{IGN_VERSION})
+  set(GZ_VERSION "$ENV{IGN_VERSION}")
+elseif("$ENV{ROS_DISTRO}" STRGREATER_EQUAL "lyrical")
+  set(GZ_VERSION "jetty")
+elseif("$ENV{ROS_DISTRO}" STRGREATER_EQUAL "jazzy")
+  set(GZ_VERSION "harmonic")
+else()
+  set(GZ_VERSION "fortress")
+endif()
 
+message(STATUS "Compiling against Gazebo ${GZ_VERSION}")
+
+if("${GZ_VERSION}" STREQUAL "jetty")
+  set(GZ_TARGET_PREFIX gz)
+  set(GZ_MSGS msgs12)
+  set(GZ_TRANSPORT transport15)
+
+elseif("${GZ_VERSION}" STREQUAL "harmonic")
+  set(GZ_TARGET_PREFIX gz)
   set(GZ_TRANSPORT transport13)
   set(GZ_MSGS msgs10)
 
-  message(STATUS "Compiling against Gazebo Harmonic")
-
-# Garden
-elseif("$ENV{GZ_VERSION}" STREQUAL "garden")
+elseif("${GZ_VERSION}" STREQUAL "garden")
   set(GZ_TARGET_PREFIX gz)
-
   set(GZ_TRANSPORT transport12)
   set(GZ_MSGS msgs9)
 
-  message(STATUS "Compiling against Gazebo Garden")
-
-# Default to Fortress
 else()
   set(GZ_TARGET_PREFIX ignition)
-
   set(GZ_TRANSPORT transport11)
   set(GZ_MSGS msgs8)
-
   add_definitions(-DFOR_IGNITION_FORTRESS)
-  message(STATUS "Compiling against Ignition Fortress")
 endif()
 
 find_package(${GZ_TARGET_PREFIX}-${GZ_TRANSPORT})
