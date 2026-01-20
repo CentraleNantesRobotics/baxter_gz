@@ -24,7 +24,7 @@ class Arm
   using JointCommand = baxter_core_msgs::msg::JointCommand;
   using Range = sensor_msgs::msg::Range;
 
-public: 
+public:
 
   explicit Arm(const std::string &side, rclcpp::Node *ros, gz::transport::Node &gz);
   static std::unordered_map<std::string, double> state;

@@ -8,20 +8,18 @@ def generate_launch_description():
     sl.declare_gazebo_axes(x=0., y=0., z=.92, yaw=3.14)
 
     sl.declare_arg('sliders',False)
+    name = sl.declare_arg('name','robot')
 
-    with sl.group(ns='robot'):
+    with sl.group(ns=name):
 
         sl.robot_state_publisher('baxter_description', 'baxter.urdf.xacro', xacro_args={'gazebo': True})
 
-        sl.spawn_gz_model('baxter', spawn_args = sl.gazebo_axes_args())
+        sl.spawn_gz_model(name, spawn_args = sl.gazebo_axes_args())
                 
         bridges = [GazeboBridge.clock()]
 
-        bridges.append(GazeboBridge.joint_states_bridge('baxter'))
+        bridges.append(GazeboBridge.joint_states_bridge(name))
 
-        #gz_js_topic = sl.name_join(GazeboBridge.model_prefix('baxter'),'/joint_state')
-        #bridges.append(GazeboBridge(gz_js_topic, '/robot/joint_states', 'sensor_msgs/JointState', GazeboBridge.gz2ros))
-        
         for side in ('left','right'):
             bridges.append(GazeboBridge(f'{side}_arm/image', f'/cameras/{side}_hand_camera/image', 'sensor_msgs/Image', GazeboBridge.gz2ros))
         

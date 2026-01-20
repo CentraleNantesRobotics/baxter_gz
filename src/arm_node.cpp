@@ -8,28 +8,28 @@ rclcpp::Node* Arm::node;
 
 Arm::Arm(const std::string &side, rclcpp::Node *ros, gz::transport::Node &gz)
 {
-  node = ros; 
+  node = ros;
+  const auto name{node->get_effective_namespace().substr(1)};
 
   // init publishers to Gazebo
   for(const auto suffix: {"s0", "s1", "e0", "e1", "w0", "w1", "w2"})
   {
     const auto joint{side + "_" + suffix};
-    const auto gz_topic_pos{"/model/baxter/joint/" + joint + "/0/cmd_pos"};
+    const auto gz_topic_pos{"/model/" + name + "/joint/" + joint + "/0/cmd_pos"};
     const auto gz_topic_vel{joint + "_cmd_vel"};
 
     vel_pub[joint] = gz.Advertise<gz::msgs::Double>(gz_topic_vel);
 
-    cmd_sub = ros->create_subscription<JointCommand>("/robot/limb/" + side + "/joint_command", 5,
+    cmd_sub = ros->create_subscription<JointCommand>("limb/" + side + "/joint_command", 5,
                                                      [&](const JointCommand &msg)
     {last_cmd = msg;}
-                                                  //   {republish(msg);}
     );
   }
 
   // init range
   range.radiation_type = range.INFRARED;
   range.header.frame_id = side + "_hand_range";
-  range_pub = ros->create_publisher<Range>("/robot/range/" + side + "_hand_range/state", 1);
+  range_pub = ros->create_publisher<Range>("range/" + side + "_hand_range/state", 1);
 
   std::function<void(const gz::msgs::LaserScan&)> sub_cb{[&](const auto &msg){republish(msg);}};
   gz.Subscribe("/" + side + "_arm/range", sub_cb);

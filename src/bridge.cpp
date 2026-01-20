@@ -24,7 +24,8 @@ public:
   {
 
     const auto world{declare_parameter("world", "baxter_world")};
-    const auto state_topic{"/world/" + world + "/model/baxter/joint_state"};
+    const auto name{get_effective_namespace().substr(1)};
+    const auto state_topic{"/world/" + world + "/model/" + name + "/joint_state"};
 
     std::function<void(const Model&)> sub_cb{[&](const auto &msg){state_cb(msg);}};
     gz_node.Subscribe(state_topic, sub_cb);
